@@ -310,9 +310,9 @@ export function KnowledgeBaseSidebar({
   const isEmbeddingLocked = projectDocuments.length > 0;
 
   return (
-    <div className="w-80 bg-[#1a1a1a] border border-gray-700 h-full flex flex-col rounded-xl">
+    <div className="w-80 bg-[#1a1a1a] h-full flex flex-col rounded-lg">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700">
+      <div className="p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium text-gray-100 flex items-center gap-2">
             <div className="w-6 h-6 bg-blue-500/20 border border-blue-500/30 rounded-md flex items-center justify-center">
@@ -376,7 +376,7 @@ export function KnowledgeBaseSidebar({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden rounded-xl">
         {activeTab === "documents" ? (
           <div className="p-6 space-y-8 bg-[#1a1a1a] text-white h-full overflow-y-auto">
             {/* Upload Section */}
@@ -542,7 +542,7 @@ export function KnowledgeBaseSidebar({
             </section>
           </div>
         ) : (
-          <div className="p-6 space-y-8 bg-[#1a1a1a] text-white h-full overflow-y-auto">
+          <div className="p-6 space-y-8 bg-[#1a1a1a] text-white h-full overflow-y-auto rounded-xl">
             {/* Status Alerts */}
             {settingsError && (
               <StatusAlert type="error" message={settingsError} />
@@ -855,7 +855,7 @@ export function KnowledgeBaseSidebar({
                 <button
                   onClick={onApplySettings}
                   disabled={settingsLoading}
-                  className="w-full bg-white hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 text-black py-3 px-4 rounded-lg transition-all duration-200 font-medium flex items-center justify-center gap-2"
+                  className="w-full bg-white hover:bg-gray-100 disabled:bg-gray-600 disabled:text-gray-400 text-black py-3 px-4 rounded-lg transition-all duration-200 font-medium flex items-center justify-center gap-2 "
                 >
                   <Settings size={16} />
                   {settingsLoading ? "Applying..." : "Apply Settings"}

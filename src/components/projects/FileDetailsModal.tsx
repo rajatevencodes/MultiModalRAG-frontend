@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
-import { apiClient } from "@/lib/api";
-import { ProjectDocument } from "@/lib/types";
+import { apiClient } from "@/lib";
+import { ProjectDocument } from "@/types";
 import { GenericStep } from "./document-details/GenericStep";
 import { PartitioningStep } from "./document-details/PartitioningStep";
 import { ChunkingStep } from "./document-details/ChunkingStep";
@@ -90,7 +90,7 @@ export function FileDetailsModal({ document, onClose }: FileDetailsModalProps) {
     try {
       setChunksLoading(true);
       const result = await apiClient.get(
-        `/api/projects/${document.project_id}/files/${document.id}/chunks`,
+        `/api/project/${document.project_id}/files/${document.id}/chunks`,
         token
       );
 

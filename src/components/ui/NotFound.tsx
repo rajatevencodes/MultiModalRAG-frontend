@@ -1,3 +1,5 @@
+import { Frown } from "lucide-react";
+
 interface NotFoundProps {
   message?: string;
 }
@@ -5,11 +7,11 @@ interface NotFoundProps {
 export function NotFound({ message = "Not found" }: NotFoundProps) {
   return (
     <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
-      <div className="flex items-center gap-3 text-gray-400">
-        <div className="w-5 h-5 border-2 border-gray-600 rounded-full flex items-center justify-center">
-          <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
+      <div className="flex flex-col items-center gap-3 text-gray-400 text-xl">
+        <div className="flex items-center gap-2">
+          <p className="text-gray-400">😭 It's not you, it's us.</p>
         </div>
-        {message}
+        <p className="text-gray-400">{message}</p>
       </div>
     </div>
   );

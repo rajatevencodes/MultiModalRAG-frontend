@@ -12,12 +12,12 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 export default function DashboardPage() {
   const router = useRouter();
 
-  // Data States - What data we're tracking
+  // * Data States - What data we're tracking
   const [userProjectsList, setUserProjectsList] = useState<Project[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // UI States - How the interface looks and behaves
+  // * UI States - How the interface looks and behaves
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -27,15 +27,10 @@ export default function DashboardPage() {
   const { getToken, userId } = useAuth(); // getToken : JWT Token to attach with the API request's headers and userId: Clerk User ID
 
   /*
-  Main Functions - What this page can do:
-  - loadUserProjects: Get all projects from the server
-  - createNewProject: Make a new project with name and description
-  - removeProject: Delete a project by its ID
-
-  User Interaction Functions:
-  - navigateToProject: Go to a specific project page when clicked
-  - openCreateModal/closeCreateModal: Show/hide the new project form
-  - changeViewMode: Switch between grid and list view
+  ! Business Logic Functions - Core operations for this page:
+  * - loadUserProjects: Get all projects from the server
+  * - createNewProject: Make a new project with name and description
+  * - removeProject: Delete a project by its ID
   */
 
   const loadUserProjects = useCallback(async () => {
@@ -110,6 +105,13 @@ export default function DashboardPage() {
       toast.error("Failed to remove project. Please try again.");
     }
   };
+
+  /*
+  ! User Interaction Functions:
+  * - navigateToProject: Go to a specific project page when clicked
+  * - openCreateModal/closeCreateModal: Show/hide the new project form
+  * - changeViewMode: Switch between grid and list view
+  */
 
   const navigateToProject = (projectId: string) => {
     router.push(`/projects/${projectId}`);
