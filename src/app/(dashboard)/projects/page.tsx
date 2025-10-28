@@ -7,6 +7,7 @@ import { CreateProjectModal } from "@/components/projects/CreateProjectModal";
 import toast from "react-hot-toast";
 import { apiClient } from "@/lib";
 import { Project } from "@/types";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function DashboardPage() {
     } finally {
       setIsLoadingProjects(false);
     }
-  }, [getToken]);
+  }, [getToken, userId]);
 
   const createNewProject = async (name: string, description: string) => {
     try {
@@ -79,17 +80,8 @@ export default function DashboardPage() {
       );
       const newlyCreatedProject = response?.data;
 
-      // Ensure the project has all required fields with proper fallbacks
-      const project: Project = {
-        id: newlyCreatedProject?.id || "",
-        name: newlyCreatedProject?.name || name,
-        description: newlyCreatedProject?.description || description,
-        created_at: newlyCreatedProject?.created_at || new Date().toISOString(),
-        clerk_id: newlyCreatedProject?.clerk_id || userId || "",
-      };
-
-      // Add the new project to the beginning of our projects list
-      setUserProjectsList((previousProjects) => [project, ...previousProjects]);
+      // Refresh the projects list from server to ensure consistency
+      await loadUserProjects();
       setShowCreateModal(false);
       toast.success("Project created successfully");
     } catch (error) {
@@ -104,28 +96,18 @@ export default function DashboardPage() {
     try {
       setErrorMessage(null);
       const token = await getToken();
-      const response = await apiClient.delete(
-        `/api/project/delete/${_projectId}`,
-        token
+      await apiClient.delete(`/api/project/delete/${_projectId}`, token);
+
+      // Remove the project from local state immediately
+      setUserProjectsList((prevProjects) =>
+        prevProjects.filter((project) => project.id !== _projectId)
       );
-      const projectsData = response.data;
-      // Ensure projectsData is always an array and has proper structure
-      if (Array.isArray(projectsData)) {
-        const validProjects = projectsData.map((project: any) => ({
-          id: project.id || "",
-          name: project.name || "Untitled Project",
-          description: project.description || "",
-          created_at: project.created_at || new Date().toISOString(),
-          clerk_id: project.clerk_id || userId || "",
-        }));
-        setUserProjectsList(validProjects);
-      } else {
-        setUserProjectsList([]);
-      }
+
       toast.success("Project removed successfully");
     } catch (error) {
       console.error("Error while removing project:", error);
       setErrorMessage("Failed to remove project. Please try again.");
+      toast.error("Failed to remove project. Please try again.");
     }
   };
 
@@ -142,6 +124,12 @@ export default function DashboardPage() {
   const changeViewMode = (mode: "grid" | "list") => {
     setViewMode(mode);
   };
+  const filterProjects = userProjectsList.filter((project) => {
+    return (
+      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
 
   // Load user's projects when the page first loads
   useEffect(() => {
@@ -150,10 +138,14 @@ export default function DashboardPage() {
     }
   }, [userId, loadUserProjects]);
 
+  if (isLoadingProjects) {
+    return <LoadingSpinner message="Project Unloading..." />;
+  }
+
   return (
     <>
       <ProjectsGrid
-        projects={userProjectsList}
+        projects={filterProjects}
         loading={isLoadingProjects}
         error={errorMessage}
         searchQuery={searchQuery}
