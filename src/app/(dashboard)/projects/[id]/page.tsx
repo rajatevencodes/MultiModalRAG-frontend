@@ -157,12 +157,48 @@ const ProjectPage: React.FC = () => {
     console.log("Add URL", url);
   };
 
-  const handleDraftSettings = (updates: any) => {
+  // This function updates project settings temporarily (like a draft)
+  // It doesn't save to the server yet - just updates what we see on screen
+  const handleDraftSettings = (updates: Partial<ProjectSettings>) => {
     console.log("Update local state with draft settings", updates);
+
+    // Update our local data state
+    setData((prev) => {
+      // If we already have some settings, merge the new changes with existing ones
+      if (prev.settings) {
+        return {
+          ...prev, // Keep everything else the same
+          settings: {
+            ...prev.settings, // Keep existing settings
+            ...updates, // Add/overwrite with new updates
+          },
+        };
+      }
+
+      // If no settings exist yet, we can't create them here
+      // (we need the server to create them first)
+      console.warn("No existing settings found to update");
+      return prev; // Return unchanged data
+    });
   };
 
   const handlePublishSettings = async () => {
     console.log("Make API call to publish settings");
+    if (!userId || !data.settings) return;
+    try {
+      const token = await getToken();
+      await apiClient.put(
+        `/api/project/${projectId}/settings/update`,
+        data.settings, // Send the current settings to the server
+        token
+      );
+      toast.success("Settings published successfully");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to publish settings";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
   };
 
   /*
