@@ -78,7 +78,7 @@ export function Sidebar() {
       <div className="flex-1"></div>
 
       {/* User Section */}
-      <div className="p-3 border-t border-gray-800">
+      <div className="p-3 border-t border-zinc-600">
         <div
           className={`flex items-center ${
             isCollapsed ? "justify-center" : "gap-3"
