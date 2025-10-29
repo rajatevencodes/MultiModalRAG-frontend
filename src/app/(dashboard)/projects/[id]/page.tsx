@@ -147,14 +147,133 @@ const ProjectPage: React.FC = () => {
 
   const handleDocumentUpload = async (files: File[]) => {
     console.log("Upload files", files);
+    if (!userId) return;
+
+    try {
+      console.log("Uploading files", files);
+      const authToken = await getToken();
+      const newlyUploadedDocuments: ProjectDocument[] = [];
+
+      const fileUploadPromises = files.map(async (selectedFile) => {
+        // Step 1: Request presigned URL from our server for S3 upload
+        const presignedUrlPayload = {
+          file_name: selectedFile.name,
+          file_size: selectedFile.size,
+          file_type: selectedFile.type,
+        };
+
+        const presignedUrlResponse = await apiClient.post(
+          `/api/project/${projectId}/files/get-presigned-url`,
+          presignedUrlPayload,
+          authToken
+        );
+
+        const { presigned_url: s3PresignedUrl, s3_key: fileS3Key } =
+          presignedUrlResponse.data;
+
+        console.log("S3 Presigned URL received:", s3PresignedUrl);
+        console.log("File S3 Key assigned:", fileS3Key);
+
+        // Step 2: Upload the actual file directly to S3 using presigned URL
+        const s3DirectUploadResponse = await apiClient.uploadToS3(
+          s3PresignedUrl,
+          selectedFile
+        );
+
+        if (!s3DirectUploadResponse.ok) {
+          throw new Error(
+            `S3 direct upload failed: ${s3DirectUploadResponse.status}`
+          );
+        }
+
+        // Step 3: Tell our server the S3 upload is complete (triggers background processing)
+        const uploadConfirmationPayload = {
+          s3_key: fileS3Key,
+        };
+
+        const uploadConfirmationResponse = await apiClient.post(
+          `/api/project/${projectId}/files/confirm-upload-to-s3`,
+          uploadConfirmationPayload,
+          authToken
+        );
+
+        const { file_update_result } = uploadConfirmationResponse.data;
+
+        newlyUploadedDocuments.push(file_update_result);
+      });
+
+      await Promise.allSettled(fileUploadPromises);
+
+      if (newlyUploadedDocuments.length > 0) {
+        // Update the local state with the newly uploaded documents
+        setData((previousData) => ({
+          ...previousData,
+          documents: [...previousData.documents, ...newlyUploadedDocuments],
+        }));
+        toast.success(
+          `Successfully uploaded ${newlyUploadedDocuments.length} file(s)`
+        );
+      }
+    } catch (uploadError) {
+      const errorMessage =
+        uploadError instanceof Error
+          ? uploadError.message
+          : "Failed to upload files";
+      console.error("File upload error:", uploadError);
+      toast.error(errorMessage);
+    }
   };
 
   const handleDocumentDelete = async (documentId: string) => {
     console.log("Document Deleted");
+    try {
+      if (!userId) return;
+      const token = await getToken();
+      await apiClient.delete(
+        `/api/project/${projectId}/files/delete/${documentId}`,
+        token
+      );
+      setData((previousData) => ({
+        ...previousData,
+        documents: previousData.documents.filter(
+          (doc) => doc.id !== documentId
+        ),
+      }));
+      toast.success("Document deleted successfully");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete document";
+      toast.error(errorMessage);
+    }
   };
 
   const handleUrlAdd = async (url: string) => {
     console.log("Add URL", url);
+
+    try {
+      if (!userId) return;
+      const token = await getToken();
+      const processUrlPayload = {
+        url,
+        project_id: projectId,
+      };
+      const processUrlResponse = await apiClient.post(
+        `/api/project/${projectId}/files/process-url`,
+        processUrlPayload,
+        token
+      );
+      const { document_creation_result } = processUrlResponse.data;
+      // Update Local state
+      setData((previousData) => ({
+        ...previousData,
+        documents: [document_creation_result, ...previousData.documents],
+      }));
+      toast.success("Website is being processed...");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to process URL";
+      toast.error(errorMessage);
+    }
   };
 
   // This function updates project settings temporarily (like a draft)
@@ -216,7 +335,6 @@ const ProjectPage: React.FC = () => {
     setSelectedDocumentId(documentId);
   };
 
-  //
   const selectedDocument = selectedDocumentId
     ? data.documents.find((doc) => doc.id == selectedDocumentId)
     : null;

@@ -82,4 +82,17 @@ export const apiClient = {
 
     return response.json();
   },
+  uploadToS3: async (presignedUrl: string, file: File) => {
+    const response = await fetch(presignedUrl, {
+      method: "PUT",
+      body: file,
+      headers: {
+        "Content-Type": file.type,
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`S3 Upload Error: ${response.status}`);
+    }
+    return response; // S3 doesn't return a JSON response, it returns a 200 status code if the upload is successful
+  },
 };
