@@ -27,7 +27,7 @@ export function ChunkingStep({
       />
     );
   }
-
+  console.log(chunkingData);
   // Calculate values
   const sourceElements = partitioningData?.elements_found
     ? Object.values(partitioningData.elements_found).reduce(
@@ -66,7 +66,7 @@ export function ChunkingStep({
 
               <div className="text-center">
                 <div className="font-bold text-2xl text-green-400">
-                  {chunkingData.total_chunks}
+                  {chunkingData?.total_chunks}
                 </div>
                 <div className="text-gray-400">chunks created</div>
               </div>
