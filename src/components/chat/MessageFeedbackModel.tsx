@@ -12,7 +12,7 @@ interface FeedbackData {
 interface MessageFeedbackModalProps {
   isOpen: boolean;
   feedbackType?: "like" | "dislike";
-  onSubmit: (feedback: FeedbackData) => void;
+  onSubmit: (feedback: FeedbackData) => Promise<void>;
   onCancel: () => void;
 }
 

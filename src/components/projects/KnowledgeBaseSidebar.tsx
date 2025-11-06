@@ -252,7 +252,7 @@ export function KnowledgeBaseSidebar({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: onDocumentUpload,
     accept: {
-      "application/pdf": [".pdf"],
+      "application/pdf": [".pdf", ".txt", ".md", ".pptx", ".docx"],
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         [".docx"],
       "text/csv": [".csv"],

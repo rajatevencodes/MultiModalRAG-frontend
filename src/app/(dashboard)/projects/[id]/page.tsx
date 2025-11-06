@@ -10,6 +10,7 @@ import { apiClient } from "@/lib";
 import toast from "react-hot-toast";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { NotFound } from "@/components/ui/NotFound";
+import { useRouter } from "next/navigation";
 
 interface ProjectData {
   project: Project | null;
@@ -20,6 +21,8 @@ interface ProjectData {
 
 const ProjectPage: React.FC = () => {
   const params = useParams();
+  const router = useRouter();
+
   const projectId = params?.id as string;
   const { getToken, userId } = useAuth();
 
@@ -359,6 +362,7 @@ const ProjectPage: React.FC = () => {
 
   const handleChatClick = (chatId: string) => {
     console.log("Navigate to chat:", chatId);
+    router.push(`/projects/${projectId}/chats/${chatId}`);
   };
 
   const handleOpenDocument = (documentId: string) => {
