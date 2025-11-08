@@ -144,6 +144,8 @@ const ProjectPage: React.FC = () => {
 
       const savedChat = response?.data;
 
+      router.push(`/projects/${projectId}/chats/${savedChat.id}`);
+
       // Update local state
       setData((prev) => ({
         ...prev,

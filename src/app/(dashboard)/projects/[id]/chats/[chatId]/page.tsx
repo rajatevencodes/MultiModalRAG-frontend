@@ -12,13 +12,13 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface ProjectChatPageProps {
   params: Promise<{
-    projectId: string;
+    id: string;
     chatId: string;
   }>;
 }
 
 export default function ProjectChatPage({ params }: ProjectChatPageProps) {
-  const { projectId, chatId } = use(params);
+  const { id: projectId, chatId } = use(params);
 
   const [currentChatData, setCurrentChatData] =
     useState<ChatWithMessages | null>(null);
